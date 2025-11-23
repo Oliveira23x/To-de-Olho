@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Mic, Eye, X, Volume2, ThumbsUp, ThumbsDown, Activity, ChevronRight, Zap, Trophy, Trash2, ArrowUp, ArrowDown } from 'lucide-react';
+import { Mic, Eye, X, Volume2, ThumbsUp, ThumbsDown, Activity, ChevronRight, Zap, Trophy, Trash2, ArrowUp, ArrowDown, Send, Sparkles } from 'lucide-react';
 import { useVoiceCommand } from '@/hooks/useVoiceCommand';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 // --- MOCK DATA (Base de dados simulada - 22 itens para garantir o corte Top 10) ---
 const MOCK_BILLS = [
@@ -250,6 +251,11 @@ export default function Index() {
   const [voiceMessage, setVoiceMessage] = useState("");
   const [activeTab, setActiveTab] = useState('relevant');
   const { isListening, transcript, startListening, stopListening, speak } = useVoiceCommand();
+  const { toast } = useToast();
+  const [aiQuestion, setAiQuestion] = useState('');
+  const [aiAnswer, setAiAnswer] = useState('');
+  const [isAiLoading, setIsAiLoading] = useState(false);
+  const [showAiChat, setShowAiChat] = useState(false);
 
   const top10Relevant = MOCK_BILLS
     .filter(b => b.relevance >= 50)
@@ -295,34 +301,120 @@ export default function Index() {
     startListening();
   };
 
+  const handleAskAI = async () => {
+    if (!aiQuestion.trim()) return;
+    
+    setIsAiLoading(true);
+    setAiAnswer('');
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('chat-ai', {
+        body: { 
+          question: aiQuestion,
+          bills: MOCK_BILLS 
+        }
+      });
+
+      if (error) throw error;
+
+      if (data?.answer) {
+        setAiAnswer(data.answer);
+        speak(data.answer);
+      } else {
+        throw new Error('Resposta vazia da IA');
+      }
+    } catch (error) {
+      console.error('Erro ao consultar IA:', error);
+      toast({
+        title: "❌ Erro",
+        description: "Não foi possível processar sua pergunta. Tente novamente.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsAiLoading(false);
+    }
+  };
+
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-200 font-sans selection:bg-yellow-500 selection:text-black pb-12">
       
       <header className="sticky top-0 z-30 bg-slate-950/90 backdrop-blur-xl border-b border-slate-800 shadow-2xl">
-        <div className="max-w-7xl mx-auto px-4 h-20 flex items-center justify-between">
-          <div className="flex items-center gap-3 group cursor-pointer" onClick={() => window.location.reload()}>
-            <div className="relative transform group-hover:rotate-12 transition-transform duration-500">
-              <Eye className="text-yellow-400 w-10 h-10" strokeWidth={2.5} />
-              <div className="absolute top-0 right-0 w-3 h-3 bg-red-500 rounded-full border-2 border-slate-950 animate-pulse"></div>
+        <div className="max-w-7xl mx-auto px-4 py-4">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3 group cursor-pointer" onClick={() => window.location.reload()}>
+              <div className="relative transform group-hover:rotate-12 transition-transform duration-500">
+                <Eye className="text-yellow-400 w-10 h-10" strokeWidth={2.5} />
+                <div className="absolute top-0 right-0 w-3 h-3 bg-red-500 rounded-full border-2 border-slate-950 animate-pulse"></div>
+              </div>
+              <div className="flex flex-col">
+                <h1 className="text-2xl font-black tracking-tighter text-white leading-none">
+                  TÔ DE <span className="text-yellow-400">OLHO!</span>
+                </h1>
+                <span className="text-[10px] font-bold tracking-widest text-slate-500 uppercase">Ranking Legislativo</span>
+              </div>
             </div>
-            <div className="flex flex-col">
-              <h1 className="text-2xl font-black tracking-tighter text-white leading-none">
-                TÔ DE <span className="text-yellow-400">OLHO!</span>
-              </h1>
-              <span className="text-[10px] font-bold tracking-widest text-slate-500 uppercase">Ranking Legislativo</span>
+
+            <div className="flex items-center gap-2">
+              <button 
+                onClick={() => setShowAiChat(!showAiChat)}
+                className={`p-3 rounded-full transition-all shadow-lg ${
+                  showAiChat
+                    ? 'bg-purple-500 text-white scale-110' 
+                    : 'bg-slate-800 text-purple-400 hover:bg-slate-700'
+                }`}
+              >
+                <Sparkles size={20} strokeWidth={2.5} />
+              </button>
+              <button 
+                onClick={handleVoiceCommand}
+                className="bg-yellow-400 hover:bg-yellow-300 text-black rounded-full pl-4 pr-6 py-3 transition-all hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(250,204,21,0.3)] flex items-center gap-3"
+              >
+                <div className="bg-black/10 p-1.5 rounded-full">
+                  <Mic size={18} strokeWidth={3} />
+                </div>
+                <span className="font-bold text-sm tracking-wide hidden sm:block">FALAR AGORA</span>
+                <span className="font-bold text-sm tracking-wide sm:hidden">FALAR</span>
+              </button>
             </div>
           </div>
 
-          <button 
-            onClick={handleVoiceCommand}
-            className="bg-yellow-400 hover:bg-yellow-300 text-black rounded-full pl-4 pr-6 py-3 transition-all hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(250,204,21,0.3)] flex items-center gap-3"
-          >
-            <div className="bg-black/10 p-1.5 rounded-full">
-               <Mic size={18} strokeWidth={3} />
+          {/* AI Chat Interface */}
+          {showAiChat && (
+            <div className="bg-gradient-to-br from-purple-950/40 to-slate-900/40 rounded-2xl p-4 backdrop-blur-sm border border-purple-500/20">
+              <div className="flex gap-2 mb-3">
+                <input
+                  type="text"
+                  value={aiQuestion}
+                  onChange={(e) => setAiQuestion(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && handleAskAI()}
+                  placeholder="Pergunte sobre os projetos de lei..."
+                  className="flex-1 bg-slate-900/80 text-white px-4 py-3 rounded-xl font-medium placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500 border border-purple-500/30"
+                  disabled={isAiLoading}
+                />
+                <button
+                  onClick={handleAskAI}
+                  disabled={isAiLoading || !aiQuestion.trim()}
+                  className="bg-purple-600 hover:bg-purple-500 text-white px-6 py-3 rounded-xl font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg flex items-center gap-2"
+                >
+                  {isAiLoading ? (
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <Send className="w-5 h-5" />
+                  )}
+                </button>
+              </div>
+              
+              {aiAnswer && (
+                <div className="bg-slate-900/90 text-white p-4 rounded-xl border border-purple-500/30">
+                  <div className="flex items-start gap-3">
+                    <Sparkles className="w-5 h-5 text-purple-400 flex-shrink-0 mt-0.5" />
+                    <p className="text-sm leading-relaxed">{aiAnswer}</p>
+                  </div>
+                </div>
+              )}
             </div>
-            <span className="font-bold text-sm tracking-wide hidden sm:block">FALAR AGORA</span>
-            <span className="font-bold text-sm tracking-wide sm:hidden">FALAR</span>
-          </button>
+          )}
         </div>
       </header>
 
