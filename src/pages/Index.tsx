@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Mic, Eye, X, Volume2, ThumbsUp, ThumbsDown, Activity, ChevronRight, Zap, Trophy, Trash2, ArrowUp, ArrowDown } from 'lucide-react';
 import { useVoiceCommand } from '@/hooks/useVoiceCommand';
+import { useToast } from '@/hooks/use-toast';
 
 // --- MOCK DATA (Base de dados simulada - 22 itens para garantir o corte Top 10) ---
 const MOCK_BILLS = [
@@ -57,6 +58,9 @@ const VoiceOverlay = ({ isOpen, onClose, message }: { isOpen: boolean; onClose: 
 };
 
 const Modal = ({ bill, onClose }: { bill: any; onClose: () => void }) => {
+  const { toast } = useToast();
+  const [vote, setVote] = useState<'support' | 'oppose' | null>(null);
+  
   if (!bill) return null;
 
   const speakSummary = () => {
@@ -65,6 +69,22 @@ const Modal = ({ bill, onClose }: { bill: any; onClose: () => void }) => {
     utterance.lang = "pt-BR";
     utterance.rate = 1.1;
     window.speechSynthesis.speak(utterance);
+  };
+
+  const handleSupport = () => {
+    setVote('support');
+    toast({
+      title: "✅ Voto registrado!",
+      description: `Você apoiou: ${bill.title}`,
+    });
+  };
+
+  const handleOppose = () => {
+    setVote('oppose');
+    toast({
+      title: "❌ Voto registrado!",
+      description: `Você discordou de: ${bill.title}`,
+    });
   };
 
   return (
@@ -148,13 +168,29 @@ const Modal = ({ bill, onClose }: { bill: any; onClose: () => void }) => {
 
         {/* Footer do Modal */}
         <div className="p-4 sm:p-6 border-t border-slate-800 flex gap-3 bg-slate-900">
-          <button className="flex-1 bg-yellow-500 hover:bg-yellow-400 text-black font-black py-4 rounded-xl transition-transform active:scale-95 flex items-center justify-center gap-2 shadow-lg shadow-yellow-500/20">
+          <button 
+            onClick={handleSupport}
+            disabled={vote === 'support'}
+            className={`flex-1 font-black py-4 rounded-xl transition-all active:scale-95 flex items-center justify-center gap-2 shadow-lg ${
+              vote === 'support' 
+                ? 'bg-emerald-500 text-white shadow-emerald-500/50' 
+                : 'bg-yellow-500 hover:bg-yellow-400 text-black shadow-yellow-500/20'
+            }`}
+          >
             <ThumbsUp size={20} strokeWidth={3} />
-            APOIAR
+            {vote === 'support' ? 'APOIADO ✓' : 'APOIAR'}
           </button>
-          <button className="flex-1 bg-slate-800 hover:bg-slate-700 text-white font-bold py-4 rounded-xl transition-colors flex items-center justify-center gap-2">
+          <button 
+            onClick={handleOppose}
+            disabled={vote === 'oppose'}
+            className={`flex-1 font-bold py-4 rounded-xl transition-all active:scale-95 flex items-center justify-center gap-2 ${
+              vote === 'oppose'
+                ? 'bg-red-600 text-white shadow-lg shadow-red-600/50'
+                : 'bg-slate-800 hover:bg-slate-700 text-white'
+            }`}
+          >
             <ThumbsDown size={20} />
-            DISCORDAR
+            {vote === 'oppose' ? 'DISCORDADO ✗' : 'DISCORDAR'}
           </button>
         </div>
       </div>
