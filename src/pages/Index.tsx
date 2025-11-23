@@ -3,6 +3,7 @@ import { Mic, Eye, X, Volume2, ThumbsUp, ThumbsDown, Activity, ChevronRight, Zap
 import { useVoiceCommand } from '@/hooks/useVoiceCommand';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 // --- MOCK DATA (Base de dados simulada - 22 itens para garantir o corte Top 10) ---
 const MOCK_BILLS = [
@@ -256,16 +257,20 @@ export default function Index() {
   const [aiAnswer, setAiAnswer] = useState('');
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [showAiChat, setShowAiChat] = useState(false);
+  const isMobile = useIsMobile();
+
+  // Mobile mostra Top 3, Desktop mostra Top 5
+  const topCount = isMobile ? 3 : 5;
 
   const top10Relevant = MOCK_BILLS
     .filter(b => b.relevance >= 50)
     .sort((a, b) => b.relevance - a.relevance)
-    .slice(0, 5);
+    .slice(0, topCount);
 
   const top10Irrelevant = MOCK_BILLS
     .filter(b => b.relevance < 50)
     .sort((a, b) => a.relevance - b.relevance)
-    .slice(0, 5);
+    .slice(0, topCount);
 
   useEffect(() => {
     if (transcript) {
