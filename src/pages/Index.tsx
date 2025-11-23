@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Mic, Eye, X, Volume2, ThumbsUp, ThumbsDown, Activity, ChevronRight, Zap, Trophy, Trash2, ArrowUp, ArrowDown } from 'lucide-react';
+import { useVoiceCommand } from '@/hooks/useVoiceCommand';
 
 // --- MOCK DATA (Base de dados simulada - 22 itens para garantir o corte Top 10) ---
 const MOCK_BILLS = [
@@ -210,9 +211,9 @@ const RankedBillCard = ({ bill, rank, onClick, type }: { bill: any; rank: number
 
 export default function Index() {
   const [selectedBill, setSelectedBill] = useState<any>(null);
-  const [isListening, setIsListening] = useState(false);
   const [voiceMessage, setVoiceMessage] = useState("");
   const [activeTab, setActiveTab] = useState('relevant');
+  const { isListening, transcript, startListening, stopListening, speak } = useVoiceCommand();
 
   const top10Relevant = MOCK_BILLS
     .filter(b => b.relevance >= 50)
@@ -224,14 +225,38 @@ export default function Index() {
     .sort((a, b) => a.relevance - b.relevance)
     .slice(0, 10);
 
+  useEffect(() => {
+    if (transcript) {
+      setVoiceMessage(`Procurando "${transcript}"...`);
+      
+      const searchTerm = transcript.toLowerCase();
+      const allBills = [...top10Relevant, ...top10Irrelevant];
+      const foundBill = allBills.find(bill => 
+        bill.title.toLowerCase().includes(searchTerm) ||
+        bill.summary.toLowerCase().includes(searchTerm) ||
+        bill.category.toLowerCase().includes(searchTerm)
+      );
+
+      if (foundBill) {
+        setTimeout(() => {
+          setSelectedBill(foundBill);
+          speak(`Encontrei: ${foundBill.title}. ${foundBill.aiAnalysis}`);
+          stopListening();
+        }, 1000);
+      } else {
+        setTimeout(() => {
+          const randomBill = top10Relevant[Math.floor(Math.random() * top10Relevant.length)];
+          setSelectedBill(randomBill);
+          speak(`Não encontrei essa lei específica. Aqui está uma lei relevante: ${randomBill.title}. ${randomBill.aiAnalysis}`);
+          stopListening();
+        }, 1000);
+      }
+    }
+  }, [transcript]);
+
   const handleVoiceCommand = () => {
-    setIsListening(true);
     setVoiceMessage("Qual lei você quer fiscalizar?");
-    setTimeout(() => setVoiceMessage("Procurando 'saneamento'..."), 1500);
-    setTimeout(() => {
-      setIsListening(false);
-      setSelectedBill(top10Relevant[1]);
-    }, 3000);
+    startListening();
   };
 
   return (
@@ -360,7 +385,24 @@ export default function Index() {
       </main>
 
       <Modal bill={selectedBill} onClose={() => setSelectedBill(null)} />
-      <VoiceOverlay isOpen={isListening} onClose={() => setIsListening(false)} message={voiceMessage} />
+      <VoiceOverlay isOpen={isListening} onClose={stopListening} message={voiceMessage} />
+
+      <footer className="mt-16 border-t border-slate-800 bg-slate-950">
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <Eye className="text-yellow-400 w-6 h-6" strokeWidth={2.5} />
+              <div>
+                <p className="text-white font-bold text-sm">Tô de Olho!</p>
+                <p className="text-slate-500 text-xs">Ranking Legislativo</p>
+              </div>
+            </div>
+            <div className="text-slate-500 text-xs">
+              © {new Date().getFullYear()} • Todos os direitos reservados
+            </div>
+          </div>
+        </div>
+      </footer>
 
     </div>
   );
