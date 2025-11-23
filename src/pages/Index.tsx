@@ -218,12 +218,12 @@ export default function Index() {
   const top10Relevant = MOCK_BILLS
     .filter(b => b.relevance >= 50)
     .sort((a, b) => b.relevance - a.relevance)
-    .slice(0, 10);
+    .slice(0, 5);
 
   const top10Irrelevant = MOCK_BILLS
     .filter(b => b.relevance < 50)
     .sort((a, b) => a.relevance - b.relevance)
-    .slice(0, 10);
+    .slice(0, 5);
 
   useEffect(() => {
     if (transcript) {
@@ -298,7 +298,7 @@ export default function Index() {
           </h2>
           <p className="text-slate-400 text-sm sm:text-lg leading-relaxed">
             Sem juridiquês. A Inteligência Artificial processou <span className="text-white font-bold">4.203 leis</span> esta semana.
-            Aqui estão as <span className="text-emerald-400 font-bold">Top 10 que salvam vidas</span> e as <span className="text-red-400 font-bold">Top 10 que jogam dinheiro fora</span>.
+            Aqui estão as <span className="text-emerald-400 font-bold">Top 5 que salvam vidas</span> e as <span className="text-red-400 font-bold">Top 5 que jogam dinheiro fora</span>.
           </p>
         </div>
 
@@ -308,14 +308,14 @@ export default function Index() {
             onClick={() => setActiveTab('relevant')}
           >
             <ArrowUp size={14} strokeWidth={3} />
-            Top 10 Úteis
+            Top 5 Úteis
           </button>
           <button 
             className={`py-3 text-xs font-black uppercase tracking-widest rounded-lg transition-all flex items-center justify-center gap-2 ${activeTab === 'irrelevant' ? 'bg-red-600 text-white shadow-lg' : 'text-slate-500 hover:bg-slate-800'}`}
             onClick={() => setActiveTab('irrelevant')}
           >
              <Trash2 size={14} strokeWidth={3} />
-             Top 10 Inúteis
+             Top 5 Inúteis
           </button>
         </div>
 
@@ -333,7 +333,7 @@ export default function Index() {
                     <p className="text-emerald-500 text-xs font-bold uppercase tracking-widest">Leis que mudam o Brasil</p>
                   </div>
                 </div>
-                <div className="text-emerald-500/20 text-4xl font-black">#TOP10</div>
+                <div className="text-emerald-500/20 text-4xl font-black">#TOP5</div>
               </div>
             </div>
             
@@ -364,7 +364,7 @@ export default function Index() {
                     <p className="text-red-500 text-xs font-bold uppercase tracking-widest">Leis que gastam seu dinheiro</p>
                   </div>
                 </div>
-                <div className="text-red-500/20 text-4xl font-black">#TOP10</div>
+                <div className="text-red-500/20 text-4xl font-black">#TOP5</div>
               </div>
             </div>
 
