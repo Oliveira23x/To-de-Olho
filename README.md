@@ -1,73 +1,55 @@
-# Welcome to your Lovable project
+# Tô de Olho 👀⚖️
 
-## Project info
+O **Tô de Olho** é um app web (em desenvolvimento) criado para ajudar pessoas a **entender leis e direitos mais rápido**, traduzindo o “juridiquês” para uma linguagem mais simples e direta.
 
-**URL**: https://lovable.dev/projects/98809fc2-52a1-4011-a6cf-e5fec8626fa1
+🔗 Projeto (Lovable): https://lovable.dev/projects/98809fc2-52a1-4011-a6cf-e5fec8626fa1  
+🔗 GitHub: https://github.com/Oliveira23x
 
-## How can I edit this code?
+---
 
-There are several ways of editing your application.
+## ✨ Objetivo
+Facilitar o entendimento de termos legais e conteúdos jurídicos do dia a dia, com explicações claras e exemplos, ajudando o usuário a ganhar contexto sem precisar “decifrar” textos difíceis.
 
-**Use Lovable**
+> **Aviso:** este app tem finalidade educativa/informativa e não substitui orientação de um profissional.
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/98809fc2-52a1-4011-a6cf-e5fec8626fa1) and start prompting.
+---
 
-Changes made via Lovable will be committed automatically to this repo.
+## ✅ Funcionalidades (atual)
+- Leitura e apresentação de conteúdos de forma mais simples
+- Organização do conteúdo em uma interface amigável
+- Base front-end preparada para evoluir com novas telas e seções
 
-**Use your preferred IDE**
+---
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## 🧭 Roadmap (próximos passos)
+- Busca por temas/termos (ex: “CLT”, “consumidor”, “trânsito”)
+- Glossário de termos jurídicos traduzidos
+- Resumos com exemplos práticos
+- Favoritos e histórico (quando houver evolução do projeto)
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+---
 
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
+## 🧰 Tecnologias
+- React + TypeScript
 - Vite
-- TypeScript
-- React
-- shadcn-ui
 - Tailwind CSS
+- shadcn/ui
 
-## How can I deploy this project?
+---
 
-Simply open [Lovable](https://lovable.dev/projects/98809fc2-52a1-4011-a6cf-e5fec8626fa1) and click on Share -> Publish.
+## 🚀 Como rodar localmente
 
-## Can I connect a custom domain to my Lovable project?
+Pré-requisitos: Node.js (recomendado 18+)
 
-Yes, you can!
+```bash
+# clonar
+git clone <URL_DO_REPO>
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+# entrar na pasta
+cd <NOME_DO_PROJETO>
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+# instalar dependências
+npm install
+
+# rodar
+npm run dev
